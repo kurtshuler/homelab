@@ -169,40 +169,40 @@ echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "
 ### Fix the "from" name in email
 
 Install dependency
-```
+```shell
 apt update
 apt install postfix-pcre
 ```
 Edit config
-```
+```shell
 nano /etc/postfix/smtp_header_checks
 ```
 Add the following text
-```
+```shell
 /^From:.*/ REPLACE From: pve1-alert <pve1-alert@something.com>
 ```
 Hash the file
-```
+```shell
 postmap hash:/etc/postfix/smtp_header_checks
 ```
 Check the contents of the file
-```
+```shell
 cat /etc/postfix/smtp_header_checks.db
 ```
 Add the module to our postfix config
-```
+```shell
 nano /etc/postfix/main.cf
 ```
 Add to the end of the file
-```
+```shell
 smtp_header_checks = pcre:/etc/postfix/smtp_header_checks
 ```
 Reload postfix service
-```
+```shell
 postfix reload
 ```
 #### Send another test email
-```
+```shell
 echo "This is a second test message sent from postfix on my Proxmox Server" | mail -s "Second Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ## Set up iGPU passthrough in Proxmox Host
@@ -221,17 +221,17 @@ BOTTOM LINE: If you did not install Proxmox on ZFS, it's normal that GRUB is use
 
 #### For Grub boot, edit `/etc/default/grub`
 Open `/etc/default/grub`
-``` sh
+```shell
 nano /etc/default/grub
 ```
 Change this line to:
-```
+```shell
 GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
 ```
 Save file and close
 
 Run:
-```
+```shell
 update-grub
 ```
 #### For Systemd (EFI) boot, edit `/etc/kernel/cmdline`
@@ -240,7 +240,7 @@ update-grub
 These steps are for EFI boot systems.
 
 Open `/etc/kernel/cmdline`
-```
+```shell
 nano /etc/kernel/cmdline
 ```
 Add this to first line:
@@ -248,55 +248,55 @@ Add this to first line:
 {: .note }
 All commands in `/etc/kernel/cmdline` must be in a **single line** on the **first line!**
 
-```
+```shell
 intel_iommu=on iommu=pt
 ```
 Save file and close
 
 Run:
-```
+```shell
 proxmox-boot-tool refresh
 ```
 ### Load VFIO modules at boot
 
 Open `/etc/modules`
-```
+```shell
 nano /etc/modules
 ```
 
 Add these lines:
-```
+```console
 vfio
 vfio_iommu_type1
 vfio_pci
 ```
 
-Save file and close
+Save file and close.
 
 ### Configure VFIO for PCIe Passthrough
 
 Find your GPU PCI identifier. It will be something like `00:02`
-```
+```shell
 lspci
 ```
 
-Find your GPU's PCI HEX values
+Find your GPU's PCI HEX values:
 
 Enter the PCI identifier (`00:02`) from above into the `lspci` command: 
-```
+```shell
 lspci -n -s 00:02 -v
 ```
 You will see an associated HEX value like `8086:46d0`
 
-Edit `/etc/modprobe.d/vfio.conf`
+Edit `/etc/modprobe.d/vfio.conf`:
 
 Copy the HEX values from your GPU into this command and hit enter:
-```
+```shell
 echo "options vfio-pci ids=8086:46d0 disable_vga=1"> /etc/modprobe.d/vfio.conf
 ```
 
  Apply all changes
-```
+```shell
 update-initramfs -u -k all
 ```
 
@@ -305,61 +305,67 @@ update-initramfs -u -k all
 This ensures nothing else on Proxmox can use the GPU that you want to pass through to a VM.
 
 Edit `/etc/modprobe.d/iommu_unsafe_interrupts.conf`
-```
+```shell
 echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/iommu_unsafe_interrupts.conf
 ```
 
 Edit `/etc/modprobe.d/blacklist.conf`
-```
+```shell
 echo "blacklist i915" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nvidia" >> /etc/modprobe.d/blacklist.conf
 ```
 
 Apply all changes
-```
+```shell
 update-initramfs -u -k all
 ```
 
 Reboot to apply all changes
-```
+```shell
 reboot
 ```
 
 ### Verify all changes
 
 Verify that the `vfio-pci` kernel driver being used:
-```
+```shell
 lspci -n -s 00:02 -v
 ```
 
 In the output, you should see: 
-   ```
-   Kernel driver in use: vfio-pci
-   ```
-Verify IOMMU is enabled:
+```shell
+Kernel driver in use: vfio-pci
 ```
+
+Verify IOMMU is enabled:
+```shell
 dmesg | grep -e DMAR -e IOMMU
 ```
+
 In the output, you should see: 
+```shell
+: IOMMU enabled
    ```
-   DMAR: IOMMU enabled
-   ```
+
 Verify IOMMU interrupt remapping is enabled:
-```
+```shell
 dmesg | grep 'remapping'
 ```
+
 In the output, you should see something like: 
-   ```
-   DMAR-IR: Enabled IRQ remapping in x2apic mode
-   ```
-Verify that Proxmox recognizes the GPU:
+```shell
+DMAR-IR: Enabled IRQ remapping in x2apic mode
 ```
+
+Verify that Proxmox recognizes the GPU:
+```shell
 lspci -v | grep -e VGA
 ```
+
 In the output, you should see something like: 
-   ```
-   00:02.0 VGA compatible controller: Intel Corporation Alder Lake-N [UHD Graphics] (prog-if 00 [VGA controller])
+```shell
+00:02.0 VGA compatible controller: Intel Corporation Alder Lake-N [UHD Graphics] (prog-if 00 [VGA controller])
 ```
 ## Set up Proxmox SSL certificates using Let's Encrypt and Cloudflare
 
