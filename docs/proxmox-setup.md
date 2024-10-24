@@ -24,7 +24,7 @@ Just the Docs has some specific configuration parameters that can be defined in 
 
 ---
 ## Make a bootable USB drive with OS images and tools using Ventoy
-The latest Ventoy installers are at https://sourceforge.net/projects/ventoy/files/
+The latest Ventoy installers are at [https://sourceforge.net/projects/ventoy/files/](https://sourceforge.net/projects/ventoy/files/)
 
 {: .note }
 The Ventoy USB can be **created** in Linux or Windows only. For Mac, use Parallels Windows VM or Linux VM.
