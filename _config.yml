@@ -185,7 +185,8 @@ callouts:
     color: red
 
 kramdown:
-  toc_levels: "1,2" 
+  toc_levels: "1,2"
+  syntax_highlighter: rouge
   syntax_highlighter_opts:
     block:
       line_numbers: false
