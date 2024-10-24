@@ -17,322 +17,361 @@ Just the Docs has some specific configuration parameters that can be defined in 
 {:toc}
 
 ---
+## 1. Make a bootable USB drive with OS images and tools using Ventoy
+> Latest Ventoy installers are at https://sourceforge.net/projects/ventoy/files/
+> 
+> ➡️ Ventoy USB can be **created** in Linux or Windows only. For Mac, use Parallels Windows VM or Linux VM.
+>
+> **After** you have created the Ventoy USB, you can **copy files to it** using your Mac or PC.
+   
+Important ISO images:
+   | ISO                                  | URL                                                                  |
+   | ------------------------------------ | -------------------------------------------------------------------- |
+   | System Rescue ISO                    | https://www.system-rescue.org/Download/                              |
+   | Proxmox PVE and PBS ISOs             | https://www.proxmox.com/en/downloads                                 |
+   | Ubuntu Server Live Install ISO       | https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso |
+   | Ubuntu Server Cloud-Init Install ISO | https://cloud-images.ubuntu.com/noble/current/                       |
+   | Ubuntu DESKTOP ISO                   | https://ubuntu.com/download/desktop/                                 |
 
-View this site's [\_config.yml](https://github.com/just-the-docs/just-the-docs/tree/main/_config.yml) file as an example.
-
-## Site logo
-
-```yaml
-# Set a path/url to a logo that will be displayed instead of the title
-logo: "/assets/images/just-the-docs.png"
+## 2. Proxmox post-install setup
+### 2.1. Check that SSH is running
+```shell-script
+systemctl status ssh.service
+```
+### 2.2. Run tteck's Proxmox VE Post Install Script
+> tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
+```diff
+- WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
+```
+```shell-script
+bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"
+```
+### 2.3. Set up IKoolcore-specific Proxmox summary
+> Follow the steps in the iKoolcore R2 wiki at https://github.com/KoolCore/Proxmox_VE_Status
+>
+> Add iKoolcore R2 hardware stats to the Proxmox summary page by running this shell script that I modified https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh
+```sh
+cd Proxmox_VE_Status
+```
+```sh
+bash ./Proxmox_VE_Status_zh.sh
 ```
 
-## Site favicon
-
-```yaml
-# Set a path/url to a favicon that will be displayed by the browser
-favicon_ico: "/assets/images/favicon.ico"
+### 2.4. Run tteck's Proxmox VE Processor Microcode Script
+> tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
+```diff
+- WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
+```
+```shell-script
+bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/microcode.sh)"
+```
+> Reboot
+```sh
+reboot
 ```
 
-If the path to your favicon is `/favicon.ico`, you can leave `favicon_ico` unset.
-
-## Search
-
-```yaml
-# Enable or disable the site search
-# Supports true (default) or false
-search_enabled: true
-
-search:
-  # Split pages into sections that can be searched individually
-  # Supports 1 - 6, default: 2
-  heading_level: 2
-  # Maximum amount of previews per search result
-  # Default: 3
-  previews: 3
-  # Maximum amount of words to display before a matched word in the preview
-  # Default: 5
-  preview_words_before: 5
-  # Maximum amount of words to display after a matched word in the preview
-  # Default: 10
-  preview_words_after: 10
-  # Set the search token separator
-  # Default: /[\s\-/]+/
-  # Example: enable support for hyphenated search words
-  tokenizer_separator: /[\s/]+/
-  # Display the relative url in search results
-  # Supports true (default) or false
-  rel_url: true
-  # Enable or disable the search button that appears in the bottom right corner of every page
-  # Supports true or false (default)
-  button: false
-  # Focus the search input by pressing `ctrl + focus_shortcut_key` (or `cmd + focus_shortcut_key` on macOS)
-  focus_shortcut_key: 'k'
+## 3. Set up the Proxmox terminal
+### 3.1. Install neofetch
+```shell
+sudo apt install neofetch
+```
+### 3.2. Install Oh My Bash
+```shell
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+```
+> Reload `.bashrc`
+```shell
+source ~/.bashrc
+```
+> If error loading OMB, set proper OMB file location in `.bashrc`
+> ```shell
+> export OSH='/root/.oh-my-bash'
+> ```
+### 3.3. Add plugins and completions to `.bashrc`
+> Edit `.bashrc` by copying and comparing to GitHub Proxmox [`.bashrc`](/Proxmox%20files/.bashrc)
+```shell
+nano .bashrc
+```
+> Reload `.bashrc`
+```shell
+source ~/.bashrc
 ```
 
-## Mermaid Diagrams
-{: .d-inline-block }
+### 3.4. Install iTerm shell integration:
+> In iTerm 2 GUI, click on `iTerm2 → Iterm Shell Integration`
 
-New (v0.4.0)
-{: .label .label-green }
+## 4. Configure Proxmox alerts
+This guide is adapted from Techno Tim's [Set up alerts in Proxmox before it's too late!](https://technotim.live/posts/proxmox-alerts/) article.
 
-The minimum configuration requires the key for `version` ([from jsDelivr](https://cdn.jsdelivr.net/npm/mermaid/)) in `_config.yml`:
+### 4.1. Install dependencies
+```shell
+apt update
+apt install -y libsasl2-modules mailutils
+```
+### 4.2. Configure app passwords on your Google account
+> https://myaccount.google.com/apppasswords
 
-```yaml
-mermaid:
-  # Version of mermaid library
-  # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
-  version: "9.1.3"
+### 4.3. Configure postfix
+```shell
+echo "smtp.gmail.com your-email@gmail.com:YourAppPassword" > /etc/postfix/sasl_passwd
+```
+#### 4.3.1. Update permissions
+```shell
+chmod 600 /etc/postfix/sasl_passwd
+```
+#### 4.3.2. Hash the file
+
+```shell
+postmap hash:/etc/postfix/sasl_passwd
+```
+> Check to to be sure the db file was created
+
+```shell
+cat /etc/postfix/sasl_passwd.db
+```
+#### 4.3.3. Edit postfix config
+
+```shell
+nano /etc/postfix/main.cf
+```
+> Comment out line 26
+```shell
+### relayhost =
+```
+> Add this text at end of file
+```EditorConfig
+# google mail configuration
+
+relayhost = smtp.gmail.com:587
+smtp_use_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_sasl_security_options =
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_tls_CAfile = /etc/ssl/certs/Entrust_Root_Certification_Authority.pem
+smtp_tls_session_cache_database = btree:/var/lib/postfix/smtp_tls_session_cache
+smtp_tls_session_cache_timeout = 3600s
+```
+> Save file 
+
+#### 4.3.4. Reload postfix
+```shell
+postfix reload
+```
+#### 4.3.5. Send a test email
+```shell
+echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "Test Email from Proxmox" shulerpve1@gmail.com
+```
+### 4.4. Fix the "from" name in email
+
+#### 4.4.1. Install dependency
+```shell
+apt update
+apt install postfix-pcre
+```
+#### 4.4.2. Edit config
+```shell
+nano /etc/postfix/smtp_header_checks
+```
+> Add the following text
+```shell
+/^From:.*/ REPLACE From: pve1-alert <pve1-alert@something.com>
+```
+#### 4.4.3. Hash the file
+```shell
+postmap hash:/etc/postfix/smtp_header_checks
+```
+> Check the contents of the file
+```shell
+cat /etc/postfix/smtp_header_checks.db
+```
+#### 4.4.4. Add the module to our postfix config
+```shell
+nano /etc/postfix/main.cf
+```
+> Add to the end of the file
+```shell
+smtp_header_checks = pcre:/etc/postfix/smtp_header_checks
+```
+#### 4.4.5. Reload postfix service
+```shell
+postfix reload
+```
+#### 4.4.6. Send another  test email
+```shell
+echo "This is a second test message sent from postfix on my Proxmox Server" | mail -s "Second Test Email from Proxmox" shulerpve1@gmail.com
+```
+## 5. Set up iGPU passthrough in Proxmox Host
+>
+> **NOTE:** Additional steps are required in **each VM** to 
+### 5.1. Make IOMMU changes at boot
+>**NOTE:** There are two possible boot systems, Systemd (EFI) or Grub.
+>
+> According to the [Proxmox manual](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysboot): "For EFI Systems installed with ZFS as the root filesystem `systemd-boot` is used, unless Secure Boot is enabled. All other deployments use the standard GRUB bootloader (this usually also applies to systems which are installed on top of Debian)."
+>
+> ➡️ BOTTOM LINE: If you did not install Proxmox on ZFS, it's normal that GRUB is used for booting in UEFI mode and you will use the first method below.
+
+#### 5.1.1. For Grub boot, edit `/etc/default/grub`
+> Open `/etc/default/grub`
+``` sh
+nano /etc/default/grub
+```
+> Change this line to:
+```EditorConfig
+GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
+```
+> Save file and close
+>
+> Run:
+```sh
+update-grub
+```
+#### 5.1.2. For Systemd (EFI) boot, edit `/etc/kernel/cmdline`
+> **NOTE:** These steps are for EFI boot systems.
+>
+> Open `/etc/kernel/cmdline`
+```sh
+nano /etc/kernel/cmdline
+```
+> Add this to first line:
+>
+>**NOTE** All commands in `/etc/kernel/cmdline` must be in a **single line** on the **first line!**
+```EditorConfig
+intel_iommu=on iommu=pt
+```
+> Save file and close
+>
+> Run:
+```sh
+proxmox-boot-tool refresh
+```
+### 5.2. Load VFIO modules at boot
+> Open `/etc/modules`
+```sh
+nano /etc/modules
 ```
 
-Provide a `path` instead of a `version` key to load the mermaid library from a local file.
-
-
-
-## Aux links
-
-```yaml
-# Aux links for the upper right navigation
-aux_links:
-  "Just the Docs on GitHub":
-    - "//github.com/just-the-docs/just-the-docs"
-
-# Makes Aux links open in a new tab. Default is false
-aux_links_new_tab: false
+> Add these lines:
+```
+vfio
+vfio_iommu_type1
+vfio_pci
 ```
 
-## Navigation sidebar
+> Save file and close
 
-```yaml
-# Enable or disable the side/mobile menu globally
-# Nav menu can also be selectively enabled or disabled using page variables or the minimal layout
-nav_enabled: true
+### 5.3. Configure VFIO for PCIe Passthrough
+
+#### 5.3.1. Find your GPU PCI identifier
+   
+> It will be something like `00:02`
+```sh
+lspci
 ```
 
-## Heading anchor links
+#### 5.3.2. Find your GPU's PCI HEX values
 
-```yaml
-# Heading anchor links appear on hover over h1-h6 tags in page content
-# allowing users to deep link to a particular heading on a page.
-#
-# Supports true (default) or false
-heading_anchors: true
+> Enter the PCI identifier (`00:02`) from above into the `lspci` command: 
+```
+lspci -n -s 00:02 -v
+```
+> You will see an associated HEX value like `8086:46d0`
+
+#### 5.3.3. Edit `/etc/modprobe.d/vfio.conf`
+
+> Copy the HEX values from your GPU into this command and hit enter:
+```sh
+echo "options vfio-pci ids=8086:46d0 disable_vga=1"> /etc/modprobe.d/vfio.conf
 ```
 
-## External navigation links
-{: .d-inline-block }
-
-New (v0.4.0)
-{: .label .label-green }
-
-External links can be added to the navigation through the `nav_external_links` option.
-
-## Footer content
-
-```yaml
-# Footer content
-# appears at the bottom of every page's main content
-# Note: The footer_content option is deprecated and will be removed in a future major release. Please use `_includes/footer_custom.html` for more robust
-markup / liquid-based content.
-footer_content: "Copyright &copy; 2017-2020 Patrick Marsceill. Distributed by an <a href=\"https://github.com/just-the-docs/just-the-docs/tree/main/LICENSE.txt\">MIT license.</a>"
-
-# Footer last edited timestamp
-last_edit_timestamp: true # show or hide edit time - page must have `last_modified_date` defined in the frontmatter
-last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https://ruby-doc.org/stdlib-2.7.0/libdoc/time/rdoc/Time.html
-
-# Footer "Edit this page on GitHub" link text
-gh_edit_link: true # show or hide edit this page link
-gh_edit_link_text: "Edit this page on GitHub."
-gh_edit_repository: "https://github.com/just-the-docs/just-the-docs" # the github URL for your repo
-gh_edit_branch: "main" # the branch that your docs is served from
-# gh_edit_source: docs # the source that your files originate from
-gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
+#### 5.3.4. Apply all changes
+```sh
+update-initramfs -u -k all
 ```
 
-_note: `footer_content` is deprecated, but still supported. For a better experience we have moved this into an include called `_includes/footer_custom.html` which will allow for robust markup / liquid-based content._
+### 5.4. Blacklist Proxmox host device drivers
 
-- the "page last modified" data will only display if a page has a key called `last_modified_date`, formatted in some readable date format
-- `last_edit_time_format` uses Ruby's DateTime formatter; for examples and information, please refer to the [official Ruby docs on `strftime` formatting](https://docs.ruby-lang.org/en/master/strftime_formatting_rdoc.html)
-- `gh_edit_repository` is the URL of the project's GitHub repository
-- `gh_edit_branch` is the branch that the docs site is served from; defaults to `main`
-- `gh_edit_source` is the source directory that your project files are stored in (should be the same as [site.source](https://jekyllrb.com/docs/configuration/options/))
-- `gh_edit_view_mode` is `"tree"` by default, which brings the user to the github page; switch to `"edit"` to bring the user directly into editing mode
+> This ensures nothing else on Proxmox can use the GPU that you want to pass through to a VM.
 
-## Color scheme
-
-```yaml
-# Color scheme supports "light" (default) and "dark"
-color_scheme: dark
+#### 5.4.1. Edit `/etc/modprobe.d/iommu_unsafe_interrupts.conf`
+```sh
+echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/iommu_unsafe_interrupts.conf
 ```
 
-<button class="btn js-toggle-dark-mode">Preview dark color scheme</button>
-
-<script>
-const toggleDarkMode = document.querySelector('.js-toggle-dark-mode');
-
-jtd.addEvent(toggleDarkMode, 'click', function(){
-  if (jtd.getTheme() === 'dark') {
-    jtd.setTheme('light');
-    toggleDarkMode.textContent = 'Preview dark color scheme';
-  } else {
-    jtd.setTheme('dark');
-    toggleDarkMode.textContent = 'Return to the light side';
-  }
-});
-</script>
-
-
-
-## Callouts
-{: .d-inline-block }
-
-New (v0.4.0)
-{: .label .label-green }
-
-To use this feature, you need to configure a `color` and (optionally) `title` for each kind of callout you want to use, e.g.:
-
-```yaml
-callouts:
-  warning:
-    title: Warning
-    color: red
+#### 5.4.2. Edit `/etc/modprobe.d/blacklist.conf`
+```sh
+echo "blacklist i915" >> /etc/modprobe.d/blacklist.conf
+echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
+echo "blacklist nvidia" >> /etc/modprobe.d/blacklist.conf
 ```
 
-This uses the color `$red-000` for the background of the callout, and `$red-300` for the title and box decoration.[^dark] You can then style a paragraph as a `warning` callout like this:
-
-```markdown
-{: .warning }
-A paragraph...
+#### 5.4.3. Apply all changes
+```sh
+update-initramfs -u -k all
 ```
 
-[^dark]:
-    If you use the `dark` color scheme, this callout uses `$red-300` for the background, and `$red-000` for the title.
-
-The colors `grey-lt`, `grey-dk`, `purple`, `blue`, `green`, `yellow`, and `red` are predefined; to use a custom color, you need to define its `000` and `300` levels in your SCSS files. For example, to use `pink`, add the following to your `_sass/custom/setup.scss` file:
-
-```scss
-$pink-000: #f77ef1;
-$pink-100: #f967f1;
-$pink-200: #e94ee1;
-$pink-300: #dd2cd4;
+#### 5.4.4. Reboot to apply all changes
+```sh
+reboot
 ```
 
-You can override the default `opacity` of the background for a particular callout, e.g.:
+### 5.5. Verify all changes
 
-```yaml
-callouts:
-  custom:
-    color: pink
-    opacity: 0.3
+#### 5.5.1. Verify `vfio-pci` kernel driver being used:
+```sh
+lspci -n -s 00:02 -v
 ```
 
-You can change the default opacity (`0.2`) for all callouts, e.g.:
-
-```yaml
-callouts_opacity: 0.3
+> In the output, you should see: 
+   ```yaml
+   Kernel driver in use: vfio-pci
+   ```
+#### 5.5.2. Verify IOMMU is enabled:
+```shell-script
+dmesg | grep -e DMAR -e IOMMU
 ```
-
-You can also adjust the overall level of callouts.
-The value of `callouts_level` is either `quiet` or `loud`;
-`loud` increases the saturation and lightness of the backgrounds.
-The default level is `quiet` when using the `light` or custom color schemes,
-and `loud` when using the `dark color scheme.`
-
-
-## Google Analytics
-
-{: .warning }
-> [Google Analytics 4 will replace Universal Analytics](https://support.google.com/analytics/answer/11583528). On **July 1, 2023**, standard Universal Analytics properties will stop processing new hits. The earlier you migrate, the more historical data and insights you will have in Google Analytics 4.
-
-Universal Analytics (UA) and Google Analytics 4 (GA4) properties are supported.
-
-```yaml
-# Google Analytics Tracking (optional)
-# Supports a CSV of tracking ID strings (eg. "UA-1234567-89,G-1AB234CDE5")
-ga_tracking: UA-2709176-10
-ga_tracking_anonymize_ip: true # Use GDPR compliant Google Analytics settings (true/nil by default)
+> In the output, you should see: 
+   ```yaml
+   DMAR: IOMMU enabled
+   ```
+#### 5.5.3. Verify IOMMU interrupt remapping is enabled:
+```shell-script
+dmesg | grep 'remapping'
 ```
-
-### Multiple IDs
-{: .d-inline-block .no_toc }
-
-New (v0.4.0)
-{: .label .label-green }
-
-This theme supports multiple comma-separated tracking IDs. This helps seamlessly transition UA properties to GA4 properties by tracking both for a while.
-
-```yaml
-ga_tracking: "UA-1234567-89,G-1AB234CDE5"
+> In the output, you should see something like: 
+   ```yaml
+   DMAR-IR: Enabled IRQ remapping in x2apic mode
+   ```
+#### 5.5.4. Verify that Proxmox recognizes the GPU:
+```shell-script
+lspci -v | grep -e VGA
 ```
-
-## Document collections
-
-By default, the navigation and search include normal [pages](https://jekyllrb.com/docs/pages/).
-You can also use [Jekyll collections](https://jekyllrb.com/docs/collections/) which group documents semantically together.
-
-{: .warning }
-> Collection folders always start with an underscore (`_`), e.g. `_tests`. You won't see your collections if you omit the prefix.
-
-For example, put all your test files in the `_tests` folder and create the `tests` collection:
-
-```yaml
-# Define Jekyll collections
-collections:
-  # Define a collection named "tests", its documents reside in the "_tests" directory
-  tests:
-    permalink: "/:collection/:path/"
-    output: true
-
-just_the_docs:
-  # Define which collections are used in just-the-docs
-  collections:
-    # Reference the "tests" collection
-    tests:
-      # Give the collection a name
-      name: Tests
-      # Exclude the collection from the navigation
-      # Supports true or false (default)
-      # nav_exclude: true
-      # Fold the collection in the navigation
-      # Supports true or false (default)
-      # nav_fold: true  # note: this option is new in v0.4
-      # Exclude the collection from the search
-      # Supports true or false (default)
-      # search_exclude: true
+> In the output, you should see something like: 
+   ```yaml
+   00:02.0 VGA compatible controller: Intel Corporation Alder Lake-N [UHD Graphics] (prog-if 00 [VGA controller])
 ```
+## 6. Set up Proxmox SSL certificates using Lets Encrypt and Cloudflare
+>
+> Instructions are at: https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html
+>
+## 7. Set up NUT UPS Monitoring
+>
+> Instructions for NUT server and client installation on Proxmox bare metal server are at: https://technotim.live/posts/NUT-server-guide/
+>
+## 8. Set up Proxmox Backup Server (PBS) backup to Synology NAS
+>
+> Instructions are at: https://www.derekseaman.com/2023/04/how-to-setup-synology-nfs-for-proxmox-backup-server-datastore.html
+>
 
-The navigation for all your normal pages (if any) is displayed before those in collections.
 
-<span>New (v0.4.0)</span>{: .label .label-green }
-Including `nav_fold: true` in a collection configuration *folds* that collection:
-an expander symbol appears next to the collection name,
-and clicking it displays/hides the links to the top-level pages of the collection.[^js-disabled]
+# Next Steps
 
-[^js-disabled]: <span>New (v0.6.0)</span>{: .label .label-green }
-    When JavaScript is disabled in the browser, all folded collections are automatically expanded,
-    since clicking expander symbols has no effect.
-    (In previous releases, navigation into folded collections required JavaScript to be enabled.)
+~~[1 - Set up Proxmox from scratch](1%20-%20Proxmox%20Setup.md)~~
 
-You can reference multiple collections.
-This creates categories in the navigation with the configured names.
+[2 - Ubuntu VM installation within Proxmox](2%20-%20Ubuntu%20VM%20Installation%20within%20Proxmox.md)
 
-```yaml
-collections:
-  tests:
-    permalink: "/:collection/:path/"
-    output: true
-  tutorials:
-    permalink: "/:collection/:path/"
-    output: true
+[3 - iGPU Hardware Passthrough Setup](3%20-%20iGPU%20Hardware%20Passthrough%20Setup.md)
 
-just_the_docs:
-  collections:
-    tests:
-      name: Tests
-    tutorials:
-      name: Tutorials
-```
+[4 - USB Drive Hardware Passthrough Setup](4%20-%20USB%20Drive%20Hardware%20Passthrough%20Setup.md)
 
-When *all* your pages are in a single collection, its name is not displayed.
+[5 - Ubuntu OS setup](5%20-%20Ubuntu%20OS%20Setup.md)
 
-The navigation for each collection is a separate name space for page titles: a page in one collection cannot be a child of a page in a different collection, or of a normal page.
