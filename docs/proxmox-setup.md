@@ -120,29 +120,32 @@ App passwords is at [https://myaccount.google.com/apppasswords](https://myaccoun
 ```shell
 echo "smtp.gmail.com your-email@gmail.com:YourAppPassword" > /etc/postfix/sasl_passwd
 ```
+
 Update permissions
 ```shell
 chmod 600 /etc/postfix/sasl_passwd
 ```
-Hash the file
 
+Hash the file
 ```shell
 postmap hash:/etc/postfix/sasl_passwd
 ```
-Check to to be sure the db file was created
 
+Check to to be sure the db file was created
 ```shell
 cat /etc/postfix/sasl_passwd.db
 ```
-Edit postfix config
 
+Edit postfix config
 ```shell
 nano /etc/postfix/main.cf
 ```
+
 Comment out line 26
 ```shell
 ### relayhost =
 ```
+
 Add this text at end of file
 ```ssh
 # google mail configuration
@@ -156,16 +159,20 @@ smtp_tls_CAfile = /etc/ssl/certs/Entrust_Root_Certification_Authority.pem
 smtp_tls_session_cache_database = btree:/var/lib/postfix/smtp_tls_session_cache
 smtp_tls_session_cache_timeout = 3600s
 ```
-Save file 
+
+Save the file.
 
 Reload postfix
 ```shell
 postfix reload
 ```
+
 ### Send a test email
+
 ```shell
 echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "Test Email from Proxmox" shulerpve1@gmail.com
 ```
+
 ### Fix the "from" name in email
 
 Install dependency
@@ -173,35 +180,44 @@ Install dependency
 apt update
 apt install postfix-pcre
 ```
+
 Edit config
 ```shell
 nano /etc/postfix/smtp_header_checks
 ```
+
 Add the following text
 ```shell
 /^From:.*/ REPLACE From: pve1-alert <pve1-alert@something.com>
 ```
+
 Hash the file
 ```shell
 postmap hash:/etc/postfix/smtp_header_checks
 ```
+
 Check the contents of the file
 ```shell
 cat /etc/postfix/smtp_header_checks.db
 ```
+
 Add the module to our postfix config
 ```shell
 nano /etc/postfix/main.cf
 ```
+
 Add to the end of the file
 ```shell
 smtp_header_checks = pcre:/etc/postfix/smtp_header_checks
 ```
+
 Reload postfix service
 ```shell
 postfix reload
 ```
+
 #### Send another test email
+
 ```shell
 echo "This is a second test message sent from postfix on my Proxmox Server" | mail -s "Second Test Email from Proxmox" shulerpve1@gmail.com
 ```
@@ -220,14 +236,17 @@ According to the [Proxmox manual](https://pve.proxmox.com/pve-docs/pve-admin-gui
 BOTTOM LINE: If you did not install Proxmox on ZFS, it's normal that GRUB is used for booting in UEFI mode and you will use the first method below.
 
 #### For Grub boot, edit `/etc/default/grub`
+
 Open `/etc/default/grub`
 ```shell
 nano /etc/default/grub
 ```
+
 Change this line to:
 ```shell
 GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
 ```
+
 Save file and close
 
 Run:
