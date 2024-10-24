@@ -23,7 +23,7 @@ Just the Docs has some specific configuration parameters that can be defined in 
 
 
 ---
-## 1. Make a bootable USB drive with OS images and tools using Ventoy
+## Make a bootable USB drive with OS images and tools using Ventoy
 > Latest Ventoy installers are at https://sourceforge.net/projects/ventoy/files/
 > 
 > ➡️ Ventoy USB can be **created** in Linux or Windows only. For Mac, use Parallels Windows VM or Linux VM.
@@ -39,12 +39,12 @@ Important ISO images:
    | Ubuntu Server Cloud-Init Install ISO | https://cloud-images.ubuntu.com/noble/current/                       |
    | Ubuntu DESKTOP ISO                   | https://ubuntu.com/download/desktop/                                 |
 
-## 2. Proxmox post-install setup
-### 2.1. Check that SSH is running
+## Proxmox post-install setup
+### Check that SSH is running
 ```shell-script
 systemctl status ssh.service
 ```
-### 2.2. Run tteck's Proxmox VE Post Install Script
+### Run tteck's Proxmox VE Post Install Script
 > tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
 ```diff
 - WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
@@ -52,7 +52,7 @@ systemctl status ssh.service
 ```shell-script
 bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"
 ```
-### 2.3. Set up IKoolcore-specific Proxmox summary
+### Set up IKoolcore-specific Proxmox summary
 > Follow the steps in the iKoolcore R2 wiki at https://github.com/KoolCore/Proxmox_VE_Status
 >
 > Add iKoolcore R2 hardware stats to the Proxmox summary page by running this shell script that I modified https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh
@@ -63,7 +63,7 @@ cd Proxmox_VE_Status
 bash ./Proxmox_VE_Status_zh.sh
 ```
 
-### 2.4. Run tteck's Proxmox VE Processor Microcode Script
+### Run tteck's Proxmox VE Processor Microcode Script
 > tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
 ```diff
 - WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
@@ -76,12 +76,12 @@ bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/microcode.
 reboot
 ```
 
-## 3. Set up the Proxmox terminal
-### 3.1. Install neofetch
+## Set up the Proxmox terminal
+### Install neofetch
 ```shell
 sudo apt install neofetch
 ```
-### 3.2. Install Oh My Bash
+### Install Oh My Bash
 ```shell
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 ```
@@ -93,7 +93,7 @@ source ~/.bashrc
 > ```shell
 > export OSH='/root/.oh-my-bash'
 > ```
-### 3.3. Add plugins and completions to `.bashrc`
+### Add plugins and completions to `.bashrc`
 > Edit `.bashrc` by copying and comparing to GitHub Proxmox [`.bashrc`](/Proxmox%20files/.bashrc)
 ```shell
 nano .bashrc
@@ -103,29 +103,29 @@ nano .bashrc
 source ~/.bashrc
 ```
 
-### 3.4. Install iTerm shell integration:
-> In iTerm 2 GUI, click on `iTerm2 → Iterm Shell Integration`
+### Install iTerm shell integration:
+> In the iTerm 2 GUI, click on `iTerm2 → Iterm Shell Integration`
 
-## 4. Configure Proxmox alerts
+## Configure Proxmox alerts
 This guide is adapted from Techno Tim's [Set up alerts in Proxmox before it's too late!](https://technotim.live/posts/proxmox-alerts/) article.
 
-### 4.1. Install dependencies
+### Install dependencies
 ```shell
 apt update
 apt install -y libsasl2-modules mailutils
 ```
-### 4.2. Configure app passwords on your Google account
+### Configure app passwords on your Google account
 > https://myaccount.google.com/apppasswords
 
-### 4.3. Configure postfix
+### Configure postfix
 ```shell
 echo "smtp.gmail.com your-email@gmail.com:YourAppPassword" > /etc/postfix/sasl_passwd
 ```
-#### 4.3.1. Update permissions
+#### Update permissions
 ```shell
 chmod 600 /etc/postfix/sasl_passwd
 ```
-#### 4.3.2. Hash the file
+#### Hash the file
 
 ```shell
 postmap hash:/etc/postfix/sasl_passwd
@@ -135,7 +135,7 @@ postmap hash:/etc/postfix/sasl_passwd
 ```shell
 cat /etc/postfix/sasl_passwd.db
 ```
-#### 4.3.3. Edit postfix config
+#### Edit postfix config
 
 ```shell
 nano /etc/postfix/main.cf
@@ -159,22 +159,22 @@ smtp_tls_session_cache_timeout = 3600s
 ```
 > Save file 
 
-#### 4.3.4. Reload postfix
+#### Reload postfix
 ```shell
 postfix reload
 ```
-#### 4.3.5. Send a test email
+#### Send a test email
 ```shell
 echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "Test Email from Proxmox" shulerpve1@gmail.com
 ```
-### 4.4. Fix the "from" name in email
+### Fix the "from" name in email
 
-#### 4.4.1. Install dependency
+#### Install dependency
 ```shell
 apt update
 apt install postfix-pcre
 ```
-#### 4.4.2. Edit config
+#### Edit config
 ```shell
 nano /etc/postfix/smtp_header_checks
 ```
@@ -182,7 +182,7 @@ nano /etc/postfix/smtp_header_checks
 ```shell
 /^From:.*/ REPLACE From: pve1-alert <pve1-alert@something.com>
 ```
-#### 4.4.3. Hash the file
+#### Hash the file
 ```shell
 postmap hash:/etc/postfix/smtp_header_checks
 ```
@@ -190,7 +190,7 @@ postmap hash:/etc/postfix/smtp_header_checks
 ```shell
 cat /etc/postfix/smtp_header_checks.db
 ```
-#### 4.4.4. Add the module to our postfix config
+#### Add the module to our postfix config
 ```shell
 nano /etc/postfix/main.cf
 ```
@@ -198,15 +198,15 @@ nano /etc/postfix/main.cf
 ```shell
 smtp_header_checks = pcre:/etc/postfix/smtp_header_checks
 ```
-#### 4.4.5. Reload postfix service
+#### Reload postfix service
 ```shell
 postfix reload
 ```
-#### 4.4.6. Send another  test email
+#### Send another  test email
 ```shell
 echo "This is a second test message sent from postfix on my Proxmox Server" | mail -s "Second Test Email from Proxmox" shulerpve1@gmail.com
 ```
-## 5. Set up iGPU passthrough in Proxmox Host
+## Set up iGPU passthrough in Proxmox Host
 >
 > **NOTE:** Additional steps are required in **each VM** to 
 ### 5.1. Make IOMMU changes at boot
@@ -216,7 +216,7 @@ echo "This is a second test message sent from postfix on my Proxmox Server" | ma
 >
 > ➡️ BOTTOM LINE: If you did not install Proxmox on ZFS, it's normal that GRUB is used for booting in UEFI mode and you will use the first method below.
 
-#### 5.1.1. For Grub boot, edit `/etc/default/grub`
+#### For Grub boot, edit `/etc/default/grub`
 > Open `/etc/default/grub`
 ``` sh
 nano /etc/default/grub
@@ -231,7 +231,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
 ```sh
 update-grub
 ```
-#### 5.1.2. For Systemd (EFI) boot, edit `/etc/kernel/cmdline`
+#### For Systemd (EFI) boot, edit `/etc/kernel/cmdline`
 > **NOTE:** These steps are for EFI boot systems.
 >
 > Open `/etc/kernel/cmdline`
@@ -250,7 +250,7 @@ intel_iommu=on iommu=pt
 ```sh
 proxmox-boot-tool refresh
 ```
-### 5.2. Load VFIO modules at boot
+### Load VFIO modules at boot
 > Open `/etc/modules`
 ```sh
 nano /etc/modules
@@ -265,16 +265,16 @@ vfio_pci
 
 > Save file and close
 
-### 5.3. Configure VFIO for PCIe Passthrough
+### Configure VFIO for PCIe Passthrough
 
-#### 5.3.1. Find your GPU PCI identifier
+#### Find your GPU PCI identifier
    
 > It will be something like `00:02`
 ```sh
 lspci
 ```
 
-#### 5.3.2. Find your GPU's PCI HEX values
+#### Find your GPU's PCI HEX values
 
 > Enter the PCI identifier (`00:02`) from above into the `lspci` command: 
 ```
@@ -282,47 +282,47 @@ lspci -n -s 00:02 -v
 ```
 > You will see an associated HEX value like `8086:46d0`
 
-#### 5.3.3. Edit `/etc/modprobe.d/vfio.conf`
+#### Edit `/etc/modprobe.d/vfio.conf`
 
 > Copy the HEX values from your GPU into this command and hit enter:
 ```sh
 echo "options vfio-pci ids=8086:46d0 disable_vga=1"> /etc/modprobe.d/vfio.conf
 ```
 
-#### 5.3.4. Apply all changes
+#### Apply all changes
 ```sh
 update-initramfs -u -k all
 ```
 
-### 5.4. Blacklist Proxmox host device drivers
+### Blacklist Proxmox host device drivers
 
 > This ensures nothing else on Proxmox can use the GPU that you want to pass through to a VM.
 
-#### 5.4.1. Edit `/etc/modprobe.d/iommu_unsafe_interrupts.conf`
+#### Edit `/etc/modprobe.d/iommu_unsafe_interrupts.conf`
 ```sh
 echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/iommu_unsafe_interrupts.conf
 ```
 
-#### 5.4.2. Edit `/etc/modprobe.d/blacklist.conf`
+#### Edit `/etc/modprobe.d/blacklist.conf`
 ```sh
 echo "blacklist i915" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nvidia" >> /etc/modprobe.d/blacklist.conf
 ```
 
-#### 5.4.3. Apply all changes
+#### Apply all changes
 ```sh
 update-initramfs -u -k all
 ```
 
-#### 5.4.4. Reboot to apply all changes
+#### Reboot to apply all changes
 ```sh
 reboot
 ```
 
-### 5.5. Verify all changes
+### Verify all changes
 
-#### 5.5.1. Verify `vfio-pci` kernel driver being used:
+#### Verify `vfio-pci` kernel driver being used:
 ```sh
 lspci -n -s 00:02 -v
 ```
@@ -331,7 +331,7 @@ lspci -n -s 00:02 -v
    ```yaml
    Kernel driver in use: vfio-pci
    ```
-#### 5.5.2. Verify IOMMU is enabled:
+#### Verify IOMMU is enabled:
 ```shell-script
 dmesg | grep -e DMAR -e IOMMU
 ```
@@ -339,7 +339,7 @@ dmesg | grep -e DMAR -e IOMMU
    ```yaml
    DMAR: IOMMU enabled
    ```
-#### 5.5.3. Verify IOMMU interrupt remapping is enabled:
+#### Verify IOMMU interrupt remapping is enabled:
 ```shell-script
 dmesg | grep 'remapping'
 ```
@@ -347,7 +347,7 @@ dmesg | grep 'remapping'
    ```yaml
    DMAR-IR: Enabled IRQ remapping in x2apic mode
    ```
-#### 5.5.4. Verify that Proxmox recognizes the GPU:
+#### Verify that Proxmox recognizes the GPU:
 ```shell-script
 lspci -v | grep -e VGA
 ```
@@ -355,15 +355,15 @@ lspci -v | grep -e VGA
    ```yaml
    00:02.0 VGA compatible controller: Intel Corporation Alder Lake-N [UHD Graphics] (prog-if 00 [VGA controller])
 ```
-## 6. Set up Proxmox SSL certificates using Lets Encrypt and Cloudflare
+## Set up Proxmox SSL certificates using Lets Encrypt and Cloudflare
 >
 > Instructions are at: https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html
 >
-## 7. Set up NUT UPS Monitoring
+## Set up NUT UPS Monitoring
 >
 > Instructions for NUT server and client installation on Proxmox bare metal server are at: https://technotim.live/posts/NUT-server-guide/
 >
-## 8. Set up Proxmox Backup Server (PBS) backup to Synology NAS
+## Set up Proxmox Backup Server (PBS) backup to Synology NAS
 >
 > Instructions are at: https://www.derekseaman.com/2023/04/how-to-setup-synology-nfs-for-proxmox-backup-server-datastore.html
 >
