@@ -235,7 +235,7 @@ According to the [Proxmox manual](https://pve.proxmox.com/pve-docs/pve-admin-gui
 {: .highlight }
 BOTTOM LINE: If you did not install Proxmox on ZFS, it's normal that GRUB is used for booting in UEFI mode and you will use the first method below.
 
-#### For Grub boot, edit `/etc/default/grub`
+**For Grub boot, edit `/etc/default/grub`**
 
 Open `/etc/default/grub`
 ```shell
@@ -253,7 +253,7 @@ Run:
 ```shell
 update-grub
 ```
-#### For Systemd (EFI) boot, edit `/etc/kernel/cmdline`
+**For Systemd (EFI) boot, edit `/etc/kernel/cmdline`**
 
 {: .note }
 These steps are for EFI boot systems.
@@ -262,6 +262,7 @@ Open `/etc/kernel/cmdline`
 ```shell
 nano /etc/kernel/cmdline
 ```
+
 Add this to first line:
 
 {: .note }
@@ -276,6 +277,7 @@ Run:
 ```shell
 proxmox-boot-tool refresh
 ```
+
 ### Load VFIO modules at boot
 
 Open `/etc/modules`
@@ -386,6 +388,7 @@ In the output, you should see something like:
 ```shell
 00:02.0 VGA compatible controller: Intel Corporation Alder Lake-N [UHD Graphics] (prog-if 00 [VGA controller])
 ```
+
 ## Set up Proxmox SSL certificates using Let's Encrypt and Cloudflare
 
 Instructions are at Derek Seaman's website: [https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html](https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html)
