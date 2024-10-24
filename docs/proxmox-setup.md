@@ -30,7 +30,7 @@ The latest Ventoy installers are at [https://sourceforge.net/projects/ventoy/fil
 The Ventoy USB can be created in Linux or Windows only. **For Mac**, use Parallels Windows VM or Linux VM. After you have created the Ventoy USB, you can copy files to it using your Mac or PC.
    
 Important ISO images:
-   - System Rescue ISO:                      [https://www.system-rescue.org/Download/]                            
+   - System Rescue ISO:                      (https://www.system-rescue.org/Download/)                         
    - Proxmox PVE and PBS ISOs:               https://www.proxmox.com/en/downloads                                 
    - Ubuntu Server Live Install ISO:         https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso 
    - Ubuntu Server Cloud-Init Install ISO:   https://cloud-images.ubuntu.com/noble/current/                       
