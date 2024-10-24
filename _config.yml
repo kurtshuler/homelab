@@ -17,11 +17,11 @@ title: Kurt's Homelab Docs
 description: A starter template for a Jeykll site using the Just the Docs theme!
 theme: just-the-docs
 baseurl: "" # the subpath of your site, e.g. /blog
-url: https://just-the-docs.github.io
-repository: kurtshuler/jtd-test # for github-metadata
+url: https://kurtshuler.github.io/homelab/
+repository: kurtshuler/homelab # for github-metadata
 
 aux_links:
-  Template Repository: https://github.com/just-the-docs/just-the-docs-template
+  GitHub Repository: https://github.com/kurtshuler/homelab
 
 
 permalink: pretty
