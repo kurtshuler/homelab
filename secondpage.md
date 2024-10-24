@@ -1,5 +1,5 @@
 ---
-layout: minimal
+layout: default
 title: Second Page
 nav_order: 2
 ---
