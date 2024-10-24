@@ -30,11 +30,11 @@ The latest Ventoy installers are at [https://sourceforge.net/projects/ventoy/fil
 The Ventoy USB can be created in Linux or Windows only. **For Mac**, use Parallels Windows VM or Linux VM. After you have created the Ventoy USB, you can copy files to it using your Mac or PC.
    
 Important ISO images:
-   - System Rescue ISO:                      (https://www.system-rescue.org/Download/)                         
-   - Proxmox PVE and PBS ISOs:               https://www.proxmox.com/en/downloads                                 
-   - Ubuntu Server Live Install ISO:         https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso 
-   - Ubuntu Server Cloud-Init Install ISO:   https://cloud-images.ubuntu.com/noble/current/                       
-   - Ubuntu DESKTOP ISO:                     https://ubuntu.com/download/desktop/                                 
+   - [System Rescue ISO](https://www.system-rescue.org/Download/)                         
+   - [Proxmox PVE and PBS ISOs](https://www.proxmox.com/en/downloads)                               
+   - [Ubuntu Server Live Install ISO](https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso)
+   - [Ubuntu Server Cloud-Init Install ISO](https://cloud-images.ubuntu.com/noble/current/)                    
+   - [Ubuntu Desktop ISO](https://ubuntu.com/download/desktop/)
 
 ## Proxmox post-install setup
 ### Check that SSH is running
@@ -42,9 +42,10 @@ Important ISO images:
 systemctl status ssh.service
 ```
 ### Run tteck's Proxmox VE Post Install Script
-tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
+tteck's Helper-Scripts are at [https://tteck.github.io/Proxmox/](https://tteck.github.io/Proxmox/)
 
-- WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
+{: .warning }
+Run tteck scripts from the **Proxmox GUI shell**, not SSH!
 
 ```
 bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"
@@ -52,7 +53,7 @@ bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-i
 ### Set up IKoolcore-specific Proxmox summary
 Follow the steps in the iKoolcore R2 wiki at https://github.com/KoolCore/Proxmox_VE_Status
 
-Add iKoolcore R2 hardware stats to the Proxmox summary page by running this shell script that I modified https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh
+Add iKoolcore R2 hardware stats to the Proxmox summary page by running this shell script that I modified [https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh](https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh)
 ```
 cd Proxmox_VE_Status
 ```
@@ -61,10 +62,11 @@ bash ./Proxmox_VE_Status_zh.sh
 ```
 
 ### Run tteck's Proxmox VE Processor Microcode Script
-tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
-```diff
-- WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
-```
+tteck's Helper-Scripts are at [https://tteck.github.io/Proxmox/](https://tteck.github.io/Proxmox/)
+
+{: .warning }
+Run tteck scripts from the **Proxmox GUI shell**, not SSH!
+
 ```
 bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/microcode.sh)"
 ```
@@ -112,17 +114,17 @@ apt update
 apt install -y libsasl2-modules mailutils
 ```
 ### Configure app passwords on your Google account
-https://myaccount.google.com/apppasswords
+App passwords is at [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords]
 
 ### Configure postfix
 ```
 echo "smtp.gmail.com your-email@gmail.com:YourAppPassword" > /etc/postfix/sasl_passwd
 ```
-#### Update permissions
+Update permissions
 ```
 chmod 600 /etc/postfix/sasl_passwd
 ```
-#### Hash the file
+Hash the file
 
 ```
 postmap hash:/etc/postfix/sasl_passwd
@@ -132,7 +134,7 @@ Check to to be sure the db file was created
 ```
 cat /etc/postfix/sasl_passwd.db
 ```
-#### Edit postfix config
+Edit postfix config
 
 ```
 nano /etc/postfix/main.cf
@@ -156,22 +158,22 @@ smtp_tls_session_cache_timeout = 3600s
 ```
 Save file 
 
-#### Reload postfix
+Reload postfix
 ```
 postfix reload
 ```
-#### Send a test email
+### Send a test email
 ```
 echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ### Fix the "from" name in email
 
-#### Install dependency
+Install dependency
 ```
 apt update
 apt install postfix-pcre
 ```
-#### Edit config
+Edit config
 ```
 nano /etc/postfix/smtp_header_checks
 ```
@@ -179,7 +181,7 @@ Add the following text
 ```
 /^From:.*/ REPLACE From: pve1-alert <pve1-alert@something.com>
 ```
-#### Hash the file
+Hash the file
 ```
 postmap hash:/etc/postfix/smtp_header_checks
 ```
@@ -187,7 +189,7 @@ Check the contents of the file
 ```
 cat /etc/postfix/smtp_header_checks.db
 ```
-#### Add the module to our postfix config
+Add the module to our postfix config
 ```
 nano /etc/postfix/main.cf
 ```
@@ -195,23 +197,27 @@ Add to the end of the file
 ```
 smtp_header_checks = pcre:/etc/postfix/smtp_header_checks
 ```
-#### Reload postfix service
+Reload postfix service
 ```
 postfix reload
 ```
-#### Send another  test email
+#### Send another test email
 ```
 echo "This is a second test message sent from postfix on my Proxmox Server" | mail -s "Second Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ## Set up iGPU passthrough in Proxmox Host
 
-**NOTE:** Additional steps are required in **each VM** to 
-### 5.1. Make IOMMU changes at boot
-**NOTE:** There are two possible boot systems, Systemd (EFI) or Grub.
+{: .important }
+Additional steps are required in **each VM** to use the passed-through iGPU
+### Make IOMMU changes at boot
+
+{: .note }
+There are two possible boot systems, Systemd (EFI) or Grub.
 
 According to the [Proxmox manual](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysboot): "For EFI Systems installed with ZFS as the root filesystem `systemd-boot` is used, unless Secure Boot is enabled. All other deployments use the standard GRUB bootloader (this usually also applies to systems which are installed on top of Debian)."
 
-➡️ BOTTOM LINE: If you did not install Proxmox on ZFS, it's normal that GRUB is used for booting in UEFI mode and you will use the first method below.
+{: .highlight }
+BOTTOM LINE: If you did not install Proxmox on ZFS, it's normal that GRUB is used for booting in UEFI mode and you will use the first method below.
 
 #### For Grub boot, edit `/etc/default/grub`
 Open `/etc/default/grub`
@@ -219,7 +225,7 @@ Open `/etc/default/grub`
 nano /etc/default/grub
 ```
 Change this line to:
-```EditorConfig
+```
 GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
 ```
 Save file and close
@@ -229,7 +235,9 @@ Run:
 update-grub
 ```
 #### For Systemd (EFI) boot, edit `/etc/kernel/cmdline`
-**NOTE:** These steps are for EFI boot systems.
+
+{: .note }
+These steps are for EFI boot systems.
 
 Open `/etc/kernel/cmdline`
 ```
@@ -237,8 +245,10 @@ nano /etc/kernel/cmdline
 ```
 Add this to first line:
 
->**NOTE** All commands in `/etc/kernel/cmdline` must be in a **single line** on the **first line!**
-```EditorConfig
+{: .note }
+All commands in `/etc/kernel/cmdline` must be in a **single line** on the **first line!**
+
+```
 intel_iommu=on iommu=pt
 ```
 Save file and close
@@ -248,6 +258,7 @@ Run:
 proxmox-boot-tool refresh
 ```
 ### Load VFIO modules at boot
+
 Open `/etc/modules`
 ```
 nano /etc/modules
@@ -264,14 +275,12 @@ Save file and close
 
 ### Configure VFIO for PCIe Passthrough
 
-#### Find your GPU PCI identifier
-   
-It will be something like `00:02`
+Find your GPU PCI identifier. It will be something like `00:02`
 ```
 lspci
 ```
 
-#### Find your GPU's PCI HEX values
+Find your GPU's PCI HEX values
 
 Enter the PCI identifier (`00:02`) from above into the `lspci` command: 
 ```
@@ -279,14 +288,14 @@ lspci -n -s 00:02 -v
 ```
 You will see an associated HEX value like `8086:46d0`
 
-#### Edit `/etc/modprobe.d/vfio.conf`
+Edit `/etc/modprobe.d/vfio.conf`
 
 Copy the HEX values from your GPU into this command and hit enter:
 ```
 echo "options vfio-pci ids=8086:46d0 disable_vga=1"> /etc/modprobe.d/vfio.conf
 ```
 
-#### Apply all changes
+ Apply all changes
 ```
 update-initramfs -u -k all
 ```
@@ -295,31 +304,31 @@ update-initramfs -u -k all
 
 This ensures nothing else on Proxmox can use the GPU that you want to pass through to a VM.
 
-#### Edit `/etc/modprobe.d/iommu_unsafe_interrupts.conf`
+Edit `/etc/modprobe.d/iommu_unsafe_interrupts.conf`
 ```
 echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/iommu_unsafe_interrupts.conf
 ```
 
-#### Edit `/etc/modprobe.d/blacklist.conf`
+Edit `/etc/modprobe.d/blacklist.conf`
 ```
 echo "blacklist i915" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nvidia" >> /etc/modprobe.d/blacklist.conf
 ```
 
-#### Apply all changes
+Apply all changes
 ```
 update-initramfs -u -k all
 ```
 
-#### Reboot to apply all changes
+Reboot to apply all changes
 ```
 reboot
 ```
 
 ### Verify all changes
 
-#### Verify `vfio-pci` kernel driver being used:
+Verify that the `vfio-pci` kernel driver being used:
 ```
 lspci -n -s 00:02 -v
 ```
@@ -328,7 +337,7 @@ In the output, you should see:
    ```
    Kernel driver in use: vfio-pci
    ```
-#### Verify IOMMU is enabled:
+Verify IOMMU is enabled:
 ```
 dmesg | grep -e DMAR -e IOMMU
 ```
@@ -336,7 +345,7 @@ In the output, you should see:
    ```
    DMAR: IOMMU enabled
    ```
-#### Verify IOMMU interrupt remapping is enabled:
+Verify IOMMU interrupt remapping is enabled:
 ```
 dmesg | grep 'remapping'
 ```
@@ -344,7 +353,7 @@ In the output, you should see something like:
    ```
    DMAR-IR: Enabled IRQ remapping in x2apic mode
    ```
-#### Verify that Proxmox recognizes the GPU:
+Verify that Proxmox recognizes the GPU:
 ```
 lspci -v | grep -e VGA
 ```
@@ -352,16 +361,16 @@ In the output, you should see something like:
    ```
    00:02.0 VGA compatible controller: Intel Corporation Alder Lake-N [UHD Graphics] (prog-if 00 [VGA controller])
 ```
-## Set up Proxmox SSL certificates using Lets Encrypt and Cloudflare
+## Set up Proxmox SSL certificates using Let's Encrypt and Cloudflare
 
-Instructions are at: https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html
+Instructions are at Derek Seaman's website: [https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html](https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html)
 
 ## Set up NUT UPS Monitoring
 
-Instructions for NUT server and client installation on Proxmox bare metal server are at: https://technotim.live/posts/NUT-server-guide/
+Instructions for NUT server and client installation on Proxmox bare metal server are at Techno Tim's website: [https://technotim.live/posts/NUT-server-guide/](https://technotim.live/posts/NUT-server-guide/)
 
 ## Set up Proxmox Backup Server (PBS) backup to Synology NAS
 
-Instructions are at: https://www.derekseaman.com/2023/04/how-to-setup-synology-nfs-for-proxmox-backup-server-datastore.html
+Instructions are at Derek Seaman's website: [https://www.derekseaman.com/2023/04/how-to-setup-synology-nfs-for-proxmox-backup-server-datastore.html](https://www.derekseaman.com/2023/04/how-to-setup-synology-nfs-for-proxmox-backup-server-datastore.html)
 
 
