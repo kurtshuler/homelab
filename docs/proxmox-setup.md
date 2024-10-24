@@ -24,29 +24,19 @@ Just the Docs has some specific configuration parameters that can be defined in 
 
 ---
 ## Make a bootable USB drive with OS images and tools using Ventoy
-Latest Ventoy installers are at https://sourceforge.net/projects/ventoy/files/
+The latest Ventoy installers are at https://sourceforge.net/projects/ventoy/files/
 
-➡️ Ventoy USB can be **created** in Linux or Windows only. For Mac, use Parallels Windows VM or Linux VM.
+{: .note }
+The Ventoy USB can be **created** in Linux or Windows only. For Mac, use Parallels Windows VM or Linux VM.
 
 **After** you have created the Ventoy USB, you can **copy files to it** using your Mac or PC.
    
 Important ISO images:
-
-| head1        | head two          | three |
-|:-------------|:------------------|:------|
-| ok           | good swedish fish | nice  |
-| out of stock | good and plenty   | nice  |
-| ok           | good `oreos`      | hmm   |
-| ok           | good `zoute` drop | yumm  |
-
-
-   | ISO                                  | URL                                                                  |
-   | :----------------------------------- | :------------------------------------------------------------------- |
-   | System Rescue ISO                    | https://www.system-rescue.org/Download/                              |
-   | Proxmox PVE and PBS ISOs             | https://www.proxmox.com/en/downloads                                 |
-   | Ubuntu Server Live Install ISO       | https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso |
-   | Ubuntu Server Cloud-Init Install ISO | https://cloud-images.ubuntu.com/noble/current/                       |
-   | Ubuntu DESKTOP ISO                   | https://ubuntu.com/download/desktop/                                 |
+   System Rescue ISO:                      https://www.system-rescue.org/Download/                              
+   Proxmox PVE and PBS ISOs:               https://www.proxmox.com/en/downloads                                 
+   Ubuntu Server Live Install ISO:         https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso 
+   Ubuntu Server Cloud-Init Install ISO:   https://cloud-images.ubuntu.com/noble/current/                       
+   Ubuntu DESKTOP ISO:                     https://ubuntu.com/download/desktop/                                 
 
 ## Proxmox post-install setup
 ### Check that SSH is running
