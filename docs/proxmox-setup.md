@@ -38,7 +38,7 @@ Important ISO images:
 
 ## Proxmox post-install setup
 ### Check that SSH is running
-```
+```shell
 systemctl status ssh.service
 ```
 ### Run tteck's Proxmox VE Post Install Script
@@ -47,17 +47,17 @@ tteck's Helper-Scripts are at [https://tteck.github.io/Proxmox/](https://tteck.g
 {: .warning }
 Run tteck scripts from the **Proxmox GUI shell**, not SSH!
 
-```
+```shell
 bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"
 ```
 ### Set up IKoolcore-specific Proxmox summary
 Follow the steps in the iKoolcore R2 wiki at https://github.com/KoolCore/Proxmox_VE_Status
 
 Add iKoolcore R2 hardware stats to the Proxmox summary page by running this shell script that I modified [https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh](https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh)
-```
+```shell
 cd Proxmox_VE_Status
 ```
-```
+```shell
 bash ./Proxmox_VE_Status_zh.sh
 ```
 
@@ -67,38 +67,38 @@ tteck's Helper-Scripts are at [https://tteck.github.io/Proxmox/](https://tteck.g
 {: .warning }
 Run tteck scripts from the **Proxmox GUI shell**, not SSH!
 
-```
+```shell
 bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/microcode.sh)"
 ```
 Reboot
-```
+```shell
 reboot
 ```
 
 ## Set up the Proxmox terminal
 ### Install neofetch
-```
+```shell
 sudo apt install neofetch
 ```
 ### Install Oh My Bash
-```
+```shell
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 ```
 Reload `.bashrc`
-```
+```shell
 source ~/.bashrc
 ```
 If error loading OMB, set proper OMB file location in `.bashrc`
-```
+```shell
 export OSH='/root/.oh-my-bash'
 ```
 ### Add plugins and completions to `.bashrc`
 Edit `.bashrc` by copying and comparing to GitHub Proxmox [`.bashrc`](/Proxmox%20files/.bashrc)
-```
+```shell
 nano .bashrc
 ```
 Reload `.bashrc`
-```
+```shell
 source ~/.bashrc
 ```
 
@@ -109,7 +109,7 @@ In the iTerm 2 GUI, click on `iTerm2 → Iterm Shell Integration`
 This guide is adapted from Techno Tim's [Set up alerts in Proxmox before it's too late!](https://technotim.live/posts/proxmox-alerts/) article.
 
 ### Install dependencies
-```
+```shell
 apt update
 apt install -y libsasl2-modules mailutils
 ```
@@ -117,34 +117,34 @@ apt install -y libsasl2-modules mailutils
 App passwords is at [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
 
 ### Configure postfix
-```
+```shell
 echo "smtp.gmail.com your-email@gmail.com:YourAppPassword" > /etc/postfix/sasl_passwd
 ```
 Update permissions
-```
+```shell
 chmod 600 /etc/postfix/sasl_passwd
 ```
 Hash the file
 
-```
+```shell
 postmap hash:/etc/postfix/sasl_passwd
 ```
 Check to to be sure the db file was created
 
-```
+```shell
 cat /etc/postfix/sasl_passwd.db
 ```
 Edit postfix config
 
-```
+```shell
 nano /etc/postfix/main.cf
 ```
 Comment out line 26
-```
+```shell
 ### relayhost =
 ```
 Add this text at end of file
-```
+```ssh
 # google mail configuration
 
 relayhost = smtp.gmail.com:587
@@ -159,11 +159,11 @@ smtp_tls_session_cache_timeout = 3600s
 Save file 
 
 Reload postfix
-```
+```shell
 postfix reload
 ```
 ### Send a test email
-```
+```shell
 echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ### Fix the "from" name in email
