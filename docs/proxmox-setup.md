@@ -32,7 +32,7 @@ Latest Ventoy installers are at https://sourceforge.net/projects/ventoy/files/
    
 Important ISO images:
    | ISO                                  | URL                                                                  |
-   | ------------------------------------ | -------------------------------------------------------------------- |
+   | :----------------------------------- | :------------------------------------------------------------------- |
    | System Rescue ISO                    | https://www.system-rescue.org/Download/                              |
    | Proxmox PVE and PBS ISOs             | https://www.proxmox.com/en/downloads                                 |
    | Ubuntu Server Live Install ISO       | https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso |
@@ -78,28 +78,28 @@ reboot
 
 ## Set up the Proxmox terminal
 ### Install neofetch
-```ell
+```
 sudo apt install neofetch
 ```
 ### Install Oh My Bash
-```ell
+```
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 ```
 Reload `.bashrc`
-```ell
+```
 source ~/.bashrc
 ```
 If error loading OMB, set proper OMB file location in `.bashrc`
-```ell
+```
 export OSH='/root/.oh-my-bash'
 ```
 ### Add plugins and completions to `.bashrc`
 Edit `.bashrc` by copying and comparing to GitHub Proxmox [`.bashrc`](/Proxmox%20files/.bashrc)
-```ell
+```
 nano .bashrc
 ```
 Reload `.bashrc`
-```ell
+```
 source ~/.bashrc
 ```
 
@@ -110,7 +110,7 @@ In the iTerm 2 GUI, click on `iTerm2 → Iterm Shell Integration`
 This guide is adapted from Techno Tim's [Set up alerts in Proxmox before it's too late!](https://technotim.live/posts/proxmox-alerts/) article.
 
 ### Install dependencies
-```ell
+```
 apt update
 apt install -y libsasl2-modules mailutils
 ```
@@ -118,30 +118,30 @@ apt install -y libsasl2-modules mailutils
 https://myaccount.google.com/apppasswords
 
 ### Configure postfix
-```ell
+```
 echo "smtp.gmail.com your-email@gmail.com:YourAppPassword" > /etc/postfix/sasl_passwd
 ```
 #### Update permissions
-```ell
+```
 chmod 600 /etc/postfix/sasl_passwd
 ```
 #### Hash the file
 
-```ell
+```
 postmap hash:/etc/postfix/sasl_passwd
 ```
 Check to to be sure the db file was created
 
-```ell
+```
 cat /etc/postfix/sasl_passwd.db
 ```
 #### Edit postfix config
 
-```ell
+```
 nano /etc/postfix/main.cf
 ```
 Comment out line 26
-```ell
+```
 ### relayhost =
 ```
 Add this text at end of file
@@ -160,50 +160,50 @@ smtp_tls_session_cache_timeout = 3600s
 Save file 
 
 #### Reload postfix
-```ell
+```
 postfix reload
 ```
 #### Send a test email
-```ell
+```
 echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ### Fix the "from" name in email
 
 #### Install dependency
-```ell
+```
 apt update
 apt install postfix-pcre
 ```
 #### Edit config
-```ell
+```
 nano /etc/postfix/smtp_header_checks
 ```
 Add the following text
-```ell
+```
 /^From:.*/ REPLACE From: pve1-alert <pve1-alert@something.com>
 ```
 #### Hash the file
-```ell
+```
 postmap hash:/etc/postfix/smtp_header_checks
 ```
 Check the contents of the file
-```ell
+```
 cat /etc/postfix/smtp_header_checks.db
 ```
 #### Add the module to our postfix config
-```ell
+```
 nano /etc/postfix/main.cf
 ```
 Add to the end of the file
-```ell
+```
 smtp_header_checks = pcre:/etc/postfix/smtp_header_checks
 ```
 #### Reload postfix service
-```ell
+```
 postfix reload
 ```
 #### Send another  test email
-```ell
+```
 echo "This is a second test message sent from postfix on my Proxmox Server" | mail -s "Second Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ## Set up iGPU passthrough in Proxmox Host
