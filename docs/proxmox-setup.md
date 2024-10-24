@@ -114,7 +114,7 @@ apt update
 apt install -y libsasl2-modules mailutils
 ```
 ### Configure app passwords on your Google account
-App passwords is at [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords]
+App passwords is at [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
 
 ### Configure postfix
 ```
