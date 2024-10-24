@@ -41,25 +41,25 @@ Important ISO images:
 
 ## Proxmox post-install setup
 ### Check that SSH is running
-```shell-script
+```
 systemctl status ssh.service
 ```
 ### Run tteck's Proxmox VE Post Install Script
 tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
-```diff
+
 - WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
+
 ```
-```shell-script
 bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"
 ```
 ### Set up IKoolcore-specific Proxmox summary
 Follow the steps in the iKoolcore R2 wiki at https://github.com/KoolCore/Proxmox_VE_Status
 
 Add iKoolcore R2 hardware stats to the Proxmox summary page by running this shell script that I modified https://github.com/kurtshuler/proxmox-ubuntu-server/blob/main/Proxmox%20files/Proxmox_VE_Status_zh.sh
-```sh
+```
 cd Proxmox_VE_Status
 ```
-```sh
+```
 bash ./Proxmox_VE_Status_zh.sh
 ```
 
@@ -68,38 +68,38 @@ tteck's Helper-Scripts are at https://tteck.github.io/Proxmox/
 ```diff
 - WARNING: Run tteck scripts from the **Proxmox GUI shell**, not SSH!
 ```
-```shell-script
+```
 bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/microcode.sh)"
 ```
 Reboot
-```sh
+```
 reboot
 ```
 
 ## Set up the Proxmox terminal
 ### Install neofetch
-```shell
+```ell
 sudo apt install neofetch
 ```
 ### Install Oh My Bash
-```shell
+```ell
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 ```
 Reload `.bashrc`
-```shell
+```ell
 source ~/.bashrc
 ```
 If error loading OMB, set proper OMB file location in `.bashrc`
-```shell
+```ell
 export OSH='/root/.oh-my-bash'
 ```
 ### Add plugins and completions to `.bashrc`
 Edit `.bashrc` by copying and comparing to GitHub Proxmox [`.bashrc`](/Proxmox%20files/.bashrc)
-```shell
+```ell
 nano .bashrc
 ```
 Reload `.bashrc`
-```shell
+```ell
 source ~/.bashrc
 ```
 
@@ -110,7 +110,7 @@ In the iTerm 2 GUI, click on `iTerm2 → Iterm Shell Integration`
 This guide is adapted from Techno Tim's [Set up alerts in Proxmox before it's too late!](https://technotim.live/posts/proxmox-alerts/) article.
 
 ### Install dependencies
-```shell
+```ell
 apt update
 apt install -y libsasl2-modules mailutils
 ```
@@ -118,30 +118,30 @@ apt install -y libsasl2-modules mailutils
 https://myaccount.google.com/apppasswords
 
 ### Configure postfix
-```shell
+```ell
 echo "smtp.gmail.com your-email@gmail.com:YourAppPassword" > /etc/postfix/sasl_passwd
 ```
 #### Update permissions
-```shell
+```ell
 chmod 600 /etc/postfix/sasl_passwd
 ```
 #### Hash the file
 
-```shell
+```ell
 postmap hash:/etc/postfix/sasl_passwd
 ```
 Check to to be sure the db file was created
 
-```shell
+```ell
 cat /etc/postfix/sasl_passwd.db
 ```
 #### Edit postfix config
 
-```shell
+```ell
 nano /etc/postfix/main.cf
 ```
 Comment out line 26
-```shell
+```ell
 ### relayhost =
 ```
 Add this text at end of file
@@ -160,50 +160,50 @@ smtp_tls_session_cache_timeout = 3600s
 Save file 
 
 #### Reload postfix
-```shell
+```ell
 postfix reload
 ```
 #### Send a test email
-```shell
+```ell
 echo "This is a test message sent from postfix on my Proxmox Server" | mail -s "Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ### Fix the "from" name in email
 
 #### Install dependency
-```shell
+```ell
 apt update
 apt install postfix-pcre
 ```
 #### Edit config
-```shell
+```ell
 nano /etc/postfix/smtp_header_checks
 ```
 Add the following text
-```shell
+```ell
 /^From:.*/ REPLACE From: pve1-alert <pve1-alert@something.com>
 ```
 #### Hash the file
-```shell
+```ell
 postmap hash:/etc/postfix/smtp_header_checks
 ```
 Check the contents of the file
-```shell
+```ell
 cat /etc/postfix/smtp_header_checks.db
 ```
 #### Add the module to our postfix config
-```shell
+```ell
 nano /etc/postfix/main.cf
 ```
 Add to the end of the file
-```shell
+```ell
 smtp_header_checks = pcre:/etc/postfix/smtp_header_checks
 ```
 #### Reload postfix service
-```shell
+```ell
 postfix reload
 ```
 #### Send another  test email
-```shell
+```ell
 echo "This is a second test message sent from postfix on my Proxmox Server" | mail -s "Second Test Email from Proxmox" shulerpve1@gmail.com
 ```
 ## Set up iGPU passthrough in Proxmox Host
@@ -228,14 +228,14 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
 Save file and close
 
 Run:
-```sh
+```
 update-grub
 ```
 #### For Systemd (EFI) boot, edit `/etc/kernel/cmdline`
 **NOTE:** These steps are for EFI boot systems.
 
 Open `/etc/kernel/cmdline`
-```sh
+```
 nano /etc/kernel/cmdline
 ```
 Add this to first line:
@@ -247,12 +247,12 @@ intel_iommu=on iommu=pt
 Save file and close
 
 Run:
-```sh
+```
 proxmox-boot-tool refresh
 ```
 ### Load VFIO modules at boot
 Open `/etc/modules`
-```sh
+```
 nano /etc/modules
 ```
 
@@ -270,7 +270,7 @@ Save file and close
 #### Find your GPU PCI identifier
    
 It will be something like `00:02`
-```sh
+```
 lspci
 ```
 
@@ -285,12 +285,12 @@ You will see an associated HEX value like `8086:46d0`
 #### Edit `/etc/modprobe.d/vfio.conf`
 
 Copy the HEX values from your GPU into this command and hit enter:
-```sh
+```
 echo "options vfio-pci ids=8086:46d0 disable_vga=1"> /etc/modprobe.d/vfio.conf
 ```
 
 #### Apply all changes
-```sh
+```
 update-initramfs -u -k all
 ```
 
@@ -299,60 +299,60 @@ update-initramfs -u -k all
 This ensures nothing else on Proxmox can use the GPU that you want to pass through to a VM.
 
 #### Edit `/etc/modprobe.d/iommu_unsafe_interrupts.conf`
-```sh
+```
 echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/iommu_unsafe_interrupts.conf
 ```
 
 #### Edit `/etc/modprobe.d/blacklist.conf`
-```sh
+```
 echo "blacklist i915" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist nvidia" >> /etc/modprobe.d/blacklist.conf
 ```
 
 #### Apply all changes
-```sh
+```
 update-initramfs -u -k all
 ```
 
 #### Reboot to apply all changes
-```sh
+```
 reboot
 ```
 
 ### Verify all changes
 
 #### Verify `vfio-pci` kernel driver being used:
-```sh
+```
 lspci -n -s 00:02 -v
 ```
 
 In the output, you should see: 
-   ```yaml
+   ```
    Kernel driver in use: vfio-pci
    ```
 #### Verify IOMMU is enabled:
-```shell-script
+```
 dmesg | grep -e DMAR -e IOMMU
 ```
 In the output, you should see: 
-   ```yaml
+   ```
    DMAR: IOMMU enabled
    ```
 #### Verify IOMMU interrupt remapping is enabled:
-```shell-script
+```
 dmesg | grep 'remapping'
 ```
 In the output, you should see something like: 
-   ```yaml
+   ```
    DMAR-IR: Enabled IRQ remapping in x2apic mode
    ```
 #### Verify that Proxmox recognizes the GPU:
-```shell-script
+```
 lspci -v | grep -e VGA
 ```
 In the output, you should see something like: 
-   ```yaml
+   ```
    00:02.0 VGA compatible controller: Intel Corporation Alder Lake-N [UHD Graphics] (prog-if 00 [VGA controller])
 ```
 ## Set up Proxmox SSL certificates using Lets Encrypt and Cloudflare
