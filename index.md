@@ -4,6 +4,7 @@ layout: home
 nav_order: 1
 description: "My homelab networking and server configuration documentation for when I need to rebuild it."
 permalink: /
+last_modified_date: 24 October 2024
 ---
 
 # Focus on writing good documentation
