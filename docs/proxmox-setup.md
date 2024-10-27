@@ -7,7 +7,7 @@ nav_order: 2
 # Proxmox Setup
 {: .no_toc }
 
-Just the Docs has some specific configuration parameters that can be defined in your Jekyll site's \_config.yml file.
+Instructions for setting up my Proxmox host with "advanced" features like GPU passthrough, SSL certificates to avoid browser warning, email alerting and Proxmox Backup Server (PBS) backup to my Synology NAS.
 {: .fs-6 .fw-300 }
 
 <details open markdown="block">
